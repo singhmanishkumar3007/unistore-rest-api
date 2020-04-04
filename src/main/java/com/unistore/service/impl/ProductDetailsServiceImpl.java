@@ -23,9 +23,9 @@ public class ProductDetailsServiceImpl implements ProductDetailsService {
 
 
   @Override
-  public ProductEntity addProduct(ProductEntity ProductEntity) {
+  public ProductEntity addProduct(ProductEntity productEntity) {
 
-    ProductEntity productAdded = productRepository.save(ProductEntity);
+    ProductEntity productAdded = productRepository.save(productEntity);
     return productAdded;
   }
 
@@ -34,7 +34,7 @@ public class ProductDetailsServiceImpl implements ProductDetailsService {
     List<ProductEntity> productEntitiesAdded =
         (List<ProductEntity>) productRepository.saveAll(productEntity);
     Map<Long, ProductEntity> addedProductsMap = productEntitiesAdded.stream()
-        .collect(Collectors.toMap(ProductEntity::getProductId, product -> product));
+        .collect(Collectors.toMap(ProductEntity::getId, product -> product));
     return addedProductsMap;
   }
 

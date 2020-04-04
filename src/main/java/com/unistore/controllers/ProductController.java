@@ -28,6 +28,9 @@ import com.unistore.exception.StandardError;
 import com.unistore.exception.StandardErrorCode;
 import com.unistore.exception.StandardException;
 import com.unistore.service.ProductDetailsService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,6 +50,12 @@ public class ProductController {
   private void initBinder(WebDataBinder binder) {
     binder.setValidator(validator);
   }
+
+  @ApiOperation(httpMethod = "POST", value = "Add a product", response = String.class)
+  @ApiResponses(value = {@ApiResponse(code = 201, message = "New product Created succesfully"),
+      @ApiResponse(code = 400, message = "Bad Request", response = StandardError.class),
+      @ApiResponse(code = 401, message = "Unauthorized", response = StandardError.class),
+      @ApiResponse(code = 500, message = "Internal Server Error", response = StandardError.class)})
 
   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -74,6 +83,13 @@ public class ProductController {
         HttpStatus.CREATED);
   }
 
+
+  @ApiOperation(httpMethod = "POST", value = "Add multiple products", response = String.class)
+  @ApiResponses(value = {@ApiResponse(code = 201, message = "products Created succesfully"),
+      @ApiResponse(code = 400, message = "Bad Request", response = StandardError.class),
+      @ApiResponse(code = 401, message = "Unauthorized", response = StandardError.class),
+      @ApiResponse(code = 500, message = "Internal Server Error", response = StandardError.class)})
+
   @PostMapping(value = "/multiple", produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Map<Long, ProductEntity>> addMultipleProducts(
@@ -84,6 +100,12 @@ public class ProductController {
     return new ResponseEntity<Map<Long, ProductEntity>>(
         productDetailsService.addMultipleProducts(productDetails), HttpStatus.CREATED);
   }
+
+  @ApiOperation(httpMethod = "GET", value = "Fetch All products", response = String.class)
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "Products fetched succesfully"),
+      @ApiResponse(code = 400, message = "Bad Request", response = StandardError.class),
+      @ApiResponse(code = 401, message = "Unauthorized", response = StandardError.class),
+      @ApiResponse(code = 500, message = "Internal Server Error", response = StandardError.class)})
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<PaginatedResult<ProductEntity>> getAllProducts(
@@ -97,11 +119,26 @@ public class ProductController {
     return new ResponseEntity<PaginatedResult<ProductEntity>>(paginatedResult, HttpStatus.OK);
   }
 
+
+  @ApiOperation(httpMethod = "GET", value = "Fetch product by product id", response = String.class)
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "product details fetched succesfully"),
+      @ApiResponse(code = 400, message = "Bad Request", response = StandardError.class),
+      @ApiResponse(code = 401, message = "Unauthorized", response = StandardError.class),
+      @ApiResponse(code = 500, message = "Internal Server Error", response = StandardError.class)})
+
   @GetMapping(value = "/id/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ProductEntity getProductById(@PathVariable("id") Long ProductId) throws Exception {
 
     return productDetailsService.findProductById(ProductId);
   }
+
+
+  @ApiOperation(httpMethod = "GET", value = "Fetch products by seller id", response = String.class)
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "product details fetched succesfully by seller id"),
+      @ApiResponse(code = 400, message = "Bad Request", response = StandardError.class),
+      @ApiResponse(code = 401, message = "Unauthorized", response = StandardError.class),
+      @ApiResponse(code = 500, message = "Internal Server Error", response = StandardError.class)})
 
   @GetMapping(value = "/seller/{sellerId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<PaginatedResult<ProductEntity>> getProductsBySellerId(

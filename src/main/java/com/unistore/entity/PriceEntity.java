@@ -7,8 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -36,9 +34,8 @@ public class PriceEntity {
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long priceId;
 
-  @JoinColumn(referencedColumnName = "id")
-  @ManyToOne
-  private ProductEntity productId;
+  @Column(name = "product_id")
+  private Long productId;
 
   @Column(name = "price_start_date")
   private String priceStartDate;

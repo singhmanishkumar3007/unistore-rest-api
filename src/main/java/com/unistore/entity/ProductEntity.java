@@ -32,8 +32,8 @@ public class ProductEntity {
 
   @Id
   @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.SEQUENCE)
-  private Long productId;
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
 
   @Column(name = "seller_id", unique = true)
   private String sellerId;
@@ -77,12 +77,14 @@ public class ProductEntity {
 @Embeddable
 @Data
 class Workflow {
+  @Column(name = "status")
   private String status;
 }
 
 @Embeddable
 @Data
 class PublishedAt {
+  @Column(name = "publishedDate")
   private Date publishedDate;
 
 }
@@ -90,8 +92,10 @@ class PublishedAt {
 @Embeddable
 @Data
 class Metafields {
+  
+  @Column(name = "value")
   private String value;
-
+  @Column(name = "key")
   private String key;
 
 }
@@ -99,6 +103,7 @@ class Metafields {
 @Embeddable
 @Data
 class CreatedAt {
+  @Column(name = "createdDate")
   private Date createdDate;
 
 }
@@ -106,6 +111,7 @@ class CreatedAt {
 @Embeddable
 @Data
 class UpdatedAt {
+  @Column(name = "updatedDate")
   private Date updatedDate;
 
 }
