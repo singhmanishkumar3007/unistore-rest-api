@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/base.xml" />
+	<property name="logPattern" value="%d %-5level %logger{35} - %msg%n [%X{api-client-ip} -%X{api-request-method}]" />
+	<property name="logEncoding" value="UTF-8" />
+	<property name="logDirectory" value="logs" />
+
+	<appender name="fileAppender"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${logDirectory}/cm_user_api%d{yyyy-MM-dd}.%i.log
+			</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>300KB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<encoder>
+			<charset>${logEncoding}</charset>
+			<pattern>${logPattern}</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="org.springframework" level="DEBUG" />
+
+	<root level="INFO">
+		<appender-ref ref="fileAppender" />
+	</root>
+	<springProfile name="dev,ppe,it,default">
+		<logger name="com.unistore" level="DEBUG" additivity="false">
+			<appender-ref ref="CONSOLE" />
+			<appender-ref ref="fileAppender" />
+		</logger>
+		>
+	</springProfile>
+	<springProfile name="production">
+		<logger name="com.unistore" level="ERROR"
+			additivity="false">
+			<appender-ref ref="FILE" />
+		</logger>
+	</springProfile>
+</configuration>
