@@ -1,5 +1,10 @@
 # Compiled class file
 *.class
+*.DS_Store
+target
+
+mvnw
+mvnw.cmd
 
 # Log file
 *.log
