@@ -21,6 +21,7 @@ import com.unistore.exception.StandardException;
 import com.unistore.service.ProductPriceAgrregatorService;
 import lombok.extern.slf4j.Slf4j;
 
+@SuppressWarnings("deprecation")
 @Service
 @Slf4j
 public class ProductPriceAggregatorServiceImpl implements ProductPriceAgrregatorService {
@@ -44,15 +45,14 @@ public class ProductPriceAggregatorServiceImpl implements ProductPriceAgrregator
 
 
 
-  @SuppressWarnings({"deprecation"})
   public ProductPriceDetails callEndpoints(String... args) throws Exception {
     // Start the clock
     long start = System.currentTimeMillis();
 
     // Kick of multiple, asynchronous lookups
-    Future<ResponseEntity<PaginatedResult<ProductEntity>>> future1 = asyncRestTemplate.exchange(
-        "http://localhost:8080/unistore/api/product/id/1", HttpMethod.GET, null,
-        new ParameterizedTypeReference<PaginatedResult<ProductEntity>>() {});
+    Future<ResponseEntity<ProductEntity>> future1 =
+        asyncRestTemplate.exchange("http://localhost:8080/unistore/api/product/id/1",
+            HttpMethod.GET, null, new ParameterizedTypeReference<ProductEntity>() {});
     Future<ResponseEntity<PaginatedResult<PriceEntity>>> future2 = asyncRestTemplate.exchange(
         "http://localhost:8080/unistore/api/price/product/1", HttpMethod.GET, null,
         new ParameterizedTypeReference<PaginatedResult<PriceEntity>>() {});
@@ -64,12 +64,11 @@ public class ProductPriceAggregatorServiceImpl implements ProductPriceAgrregator
 
     // Print results, including elapsed time
     LOGGER.info("Elapsed time: " + (System.currentTimeMillis() - start));
-    LOGGER.info("future 1 : ", future1.get());
-    LOGGER.info("future 2 : ", future2.get());
+    System.out.println("future 1 : " + future1.get());
+    System.out.println("future 2 : " + future2.get());
 
-    return ProductPriceDetails.builder()
-        .productDetails((ProductEntity) future1.get().getBody().getResult().get(0))
-        .priceDetails((PriceEntity) future2.get().getBody().getResult().get(0)).build();
+    return ProductPriceDetails.builder().productDetails(future1.get().getBody())
+        .priceDetails(future2.get().getBody().getResult().get(0)).build();
   }
 
 

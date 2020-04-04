@@ -1,8 +1,6 @@
 package com.unistore.entity;
 
-import java.sql.Date;
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -32,7 +30,7 @@ public class ProductEntity {
 
   @Id
   @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
 
   @Column(name = "seller_id", unique = true)
@@ -63,55 +61,12 @@ public class ProductEntity {
   private PublishedAt publishedAt;
 
   @Embedded
-  private Metafields[] metafields;
+  private Metafields metafields;
 
   @Embedded
   private CreatedAt createdAt;
 
   @Embedded
   private UpdatedAt updatedAt;
-
-}
-
-
-@Embeddable
-@Data
-class Workflow {
-  @Column(name = "status")
-  private String status;
-}
-
-@Embeddable
-@Data
-class PublishedAt {
-  @Column(name = "publishedDate")
-  private Date publishedDate;
-
-}
-
-@Embeddable
-@Data
-class Metafields {
-  
-  @Column(name = "value")
-  private String value;
-  @Column(name = "key")
-  private String key;
-
-}
-
-@Embeddable
-@Data
-class CreatedAt {
-  @Column(name = "createdDate")
-  private Date createdDate;
-
-}
-
-@Embeddable
-@Data
-class UpdatedAt {
-  @Column(name = "updatedDate")
-  private Date updatedDate;
 
 }
