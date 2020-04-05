@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.unistore.domain.ProductPriceDetails;
-import com.unistore.exception.StandardError;
+import com.unistore.exception.ErrorDetails;
 import com.unistore.service.ProductPriceAgrregatorService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -30,15 +30,16 @@ public class ProductPriceAggregatorController {
       response = String.class)
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "product-price  details fetched succesfully"),
-      @ApiResponse(code = 400, message = "Bad Request", response = StandardError.class),
-      @ApiResponse(code = 401, message = "Unauthorized", response = StandardError.class),
-      @ApiResponse(code = 500, message = "Internal Server Error", response = StandardError.class)})
+      @ApiResponse(code = 400, message = "Bad Request", response = ErrorDetails.class),
+      @ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+      @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorDetails.class)})
 
   @GetMapping(value = "/product/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public List<ProductPriceDetails> getProductPriceById(@PathVariable("id") Long ProductId)
+  public List<ProductPriceDetails> getProductPriceById(@PathVariable("id") Long productId)
       throws Exception {
 
-    return productPriceAgrregatorService.getDetails(ProductId);
+    LOGGER.info("In getProductPriceById for productId {}", productId);
+    return productPriceAgrregatorService.getDetails(productId);
   }
 
 

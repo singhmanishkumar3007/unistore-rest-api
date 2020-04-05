@@ -1,7 +1,10 @@
 package com.unistore.entity;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 import javax.persistence.Embeddable;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -21,6 +24,9 @@ import lombok.NoArgsConstructor;
 @JsonInclude(Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class CreatedAt {
-  private Date createdDate;
+  @DateTimeFormat(iso = ISO.DATE_TIME)
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+  private LocalDateTime createdDate;
+
 
 }

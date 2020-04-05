@@ -1,6 +1,5 @@
 package com.unistore.controllers;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +21,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.unistore.domain.PaginatedResult;
 import com.unistore.entity.PriceEntity;
-import com.unistore.exception.StandardError;
-import com.unistore.exception.StandardErrorCode;
-import com.unistore.exception.StandardException;
+import com.unistore.exception.ErrorDetails;
+import com.unistore.exception.UnistoreErrorCode;
+import com.unistore.exception.UnistoreException;
 import com.unistore.service.PriceDetailsService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -52,9 +51,9 @@ public class PriceController {
 
   @ApiOperation(httpMethod = "POST", value = "Add price", response = String.class)
   @ApiResponses(value = {@ApiResponse(code = 201, message = "price added succesfully"),
-      @ApiResponse(code = 400, message = "Bad Request", response = StandardError.class),
-      @ApiResponse(code = 401, message = "Unauthorized", response = StandardError.class),
-      @ApiResponse(code = 500, message = "Internal Server Error", response = StandardError.class)})
+      @ApiResponse(code = 400, message = "Bad Request", response = ErrorDetails.class),
+      @ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+      @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorDetails.class)})
 
   @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE,
       consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -68,11 +67,8 @@ public class PriceController {
       String errors =
           objectErrors.stream().map(objectErrorArray -> String.join(",", objectErrorArray))
               .collect(Collectors.joining());
-      StandardError standardError =
-          StandardError.builder().method("addPrice").field("requestbody").message(errors).build();
-      StandardException standardException =
-          new StandardException(HttpStatus.BAD_REQUEST, Arrays.asList(standardError),
-              StandardErrorCode.SC400, new Throwable("Bad Message request"));
+      UnistoreException standardException = new UnistoreException(HttpStatus.BAD_REQUEST,
+          UnistoreErrorCode.SC400, errors, new Throwable("Bad Message request"));
       throw standardException;
     }
 
@@ -85,9 +81,9 @@ public class PriceController {
   @ApiOperation(httpMethod = "GET", value = "Fetch price by product id", response = String.class)
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "price details for product fetched succesfully"),
-      @ApiResponse(code = 400, message = "Bad Request", response = StandardError.class),
-      @ApiResponse(code = 401, message = "Unauthorized", response = StandardError.class),
-      @ApiResponse(code = 500, message = "Internal Server Error", response = StandardError.class)})
+      @ApiResponse(code = 400, message = "Bad Request", response = ErrorDetails.class),
+      @ApiResponse(code = 401, message = "Unauthorized", response = ErrorDetails.class),
+      @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorDetails.class)})
 
   @GetMapping(value = "/product/{productId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<PaginatedResult<PriceEntity>> getPriceByProductId(

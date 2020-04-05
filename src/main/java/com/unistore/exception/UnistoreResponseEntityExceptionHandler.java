@@ -12,11 +12,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @ControllerAdvice
 @RestController
-public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+public class UnistoreResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(StandardException.class)
-    public final ResponseEntity<ErrorDetails> handleUserNotFoundException(StandardException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getStandardError(), ex.getStandardErrorCode(),
+    @ExceptionHandler(UnistoreException.class)
+    public final ResponseEntity<ErrorDetails> handleUserNotFoundException(UnistoreException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(new Date(),  ex.getStandardErrorCode(),
                 request.getDescription(false));
         return new ResponseEntity<>(errorDetails,
                 ex.getHttpStatus() != null ? ex.getHttpStatus() : HttpStatus.INTERNAL_SERVER_ERROR);

@@ -1,6 +1,6 @@
 package com.unistore.exception;
 
-public enum StandardErrorCode {
+public enum UnistoreErrorCode {
     SC404("Not Found"), SC500("Internal Server Error"), SC400("Bad Message");
 
     private String value;
@@ -13,7 +13,7 @@ public enum StandardErrorCode {
         this.value = value;
     }
 
-    private StandardErrorCode(String value) {
+    private UnistoreErrorCode(String value) {
         this.value = value;
     }
 

@@ -1,6 +1,5 @@
 package com.unistore.service.impl;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -15,9 +14,8 @@ import com.unistore.domain.PaginatedResult;
 import com.unistore.domain.ProductPriceDetails;
 import com.unistore.entity.PriceEntity;
 import com.unistore.entity.ProductEntity;
-import com.unistore.exception.StandardError;
-import com.unistore.exception.StandardErrorCode;
-import com.unistore.exception.StandardException;
+import com.unistore.exception.UnistoreErrorCode;
+import com.unistore.exception.UnistoreException;
 import com.unistore.service.ProductPriceAgrregatorService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,15 +28,15 @@ public class ProductPriceAggregatorServiceImpl implements ProductPriceAgrregator
   private AsyncRestTemplate asyncRestTemplate;
 
   @Override
-  public List<ProductPriceDetails> getDetails(Long productId) throws StandardException {
+  public List<ProductPriceDetails> getDetails(Long productId) throws UnistoreException {
 
     List<ProductPriceDetails> productPriceDetails;
     try {
       productPriceDetails = Collections.singletonList(callEndpoints());
     } catch (Exception e) {
-      throw new StandardException(HttpStatus.INTERNAL_SERVER_ERROR,
-          Arrays.asList(StandardError.builder().message("error while getting async call").build()),
-          StandardErrorCode.SC500, e);
+      LOGGER.error("error while getting async call", e);
+      throw new UnistoreException(HttpStatus.INTERNAL_SERVER_ERROR, UnistoreErrorCode.SC500,
+          "error while getting async call", e);
     }
     return productPriceDetails;
   }
@@ -46,10 +44,8 @@ public class ProductPriceAggregatorServiceImpl implements ProductPriceAgrregator
 
 
   public ProductPriceDetails callEndpoints(String... args) throws Exception {
-    // Start the clock
     long start = System.currentTimeMillis();
 
-    // Kick of multiple, asynchronous lookups
     Future<ResponseEntity<ProductEntity>> future1 =
         asyncRestTemplate.exchange("http://localhost:8080/unistore/api/product/id/1",
             HttpMethod.GET, null, new ParameterizedTypeReference<ProductEntity>() {});
@@ -57,12 +53,10 @@ public class ProductPriceAggregatorServiceImpl implements ProductPriceAgrregator
         "http://localhost:8080/unistore/api/price/product/1", HttpMethod.GET, null,
         new ParameterizedTypeReference<PaginatedResult<PriceEntity>>() {});
 
-    // Wait until they are all done
     while (!(future1.isDone() && future2.isDone())) {
-      Thread.sleep(10); // 10-millisecond pause between each check
+      Thread.sleep(10);
     }
 
-    // Print results, including elapsed time
     LOGGER.info("Elapsed time: " + (System.currentTimeMillis() - start));
     System.out.println("future 1 : " + future1.get());
     System.out.println("future 2 : " + future2.get());
