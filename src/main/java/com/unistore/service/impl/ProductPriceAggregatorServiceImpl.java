@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -27,12 +28,20 @@ public class ProductPriceAggregatorServiceImpl implements ProductPriceAgrregator
   @Autowired
   private AsyncRestTemplate asyncRestTemplate;
 
+  @Value("${url.product}")
+  private String productURL;
+
+  @Value("${url.price}")
+  private String priceURL;
+
+
+
   @Override
   public List<ProductPriceDetails> getDetails(Long productId) throws UnistoreException {
 
     List<ProductPriceDetails> productPriceDetails;
     try {
-      productPriceDetails = Collections.singletonList(callEndpoints());
+      productPriceDetails = Collections.singletonList(callEndpoints(productId));
     } catch (Exception e) {
       LOGGER.error("error while getting async call", e);
       throw new UnistoreException(HttpStatus.INTERNAL_SERVER_ERROR, UnistoreErrorCode.SC500,
@@ -43,15 +52,15 @@ public class ProductPriceAggregatorServiceImpl implements ProductPriceAgrregator
 
 
 
-  public ProductPriceDetails callEndpoints(String... args) throws Exception {
+  public ProductPriceDetails callEndpoints(Long productId) throws Exception {
     long start = System.currentTimeMillis();
 
     Future<ResponseEntity<ProductEntity>> future1 =
-        asyncRestTemplate.exchange("http://localhost:8080/unistore/api/product/id/1",
-            HttpMethod.GET, null, new ParameterizedTypeReference<ProductEntity>() {});
-    Future<ResponseEntity<PaginatedResult<PriceEntity>>> future2 = asyncRestTemplate.exchange(
-        "http://localhost:8080/unistore/api/price/product/1", HttpMethod.GET, null,
-        new ParameterizedTypeReference<PaginatedResult<PriceEntity>>() {});
+        asyncRestTemplate.exchange(productURL + productId, HttpMethod.GET, null,
+            new ParameterizedTypeReference<ProductEntity>() {});
+    Future<ResponseEntity<PaginatedResult<PriceEntity>>> future2 =
+        asyncRestTemplate.exchange(priceURL + productId, HttpMethod.GET, null,
+            new ParameterizedTypeReference<PaginatedResult<PriceEntity>>() {});
 
     while (!(future1.isDone() && future2.isDone())) {
       Thread.sleep(10);

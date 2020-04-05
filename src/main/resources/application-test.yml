@@ -19,3 +19,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    
+url:
+  product: http://localhost:8080/unistore/api/product/id/{}
+  price: http://localhost:8080/unistore/api/price/product/{}        
