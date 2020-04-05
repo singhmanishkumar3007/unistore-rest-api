@@ -1,4 +1,4 @@
-package com.unistore.controllers;
+package com.unistore.controller;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

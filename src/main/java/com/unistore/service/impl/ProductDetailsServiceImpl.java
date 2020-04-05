@@ -127,7 +127,7 @@ public class ProductDetailsServiceImpl implements ProductDetailsService {
     } catch (Exception e) {
       LOGGER.error("Exception while fetching product by product id : {} ", id, e);
       throw new UnistoreException(HttpStatus.INTERNAL_SERVER_ERROR, UnistoreErrorCode.SC500,
-          "Exception while fetching products by  id :" + id + e.getMessage(), e);
+          "Exception while fetching products by  id :" + id +"--"+ e.getMessage(), e);
     }
 
   }
