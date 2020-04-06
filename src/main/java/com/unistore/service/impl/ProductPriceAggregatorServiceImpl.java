@@ -1,16 +1,12 @@
 package com.unistore.service.impl;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Future;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.AsyncRestTemplate;
+import org.springframework.web.client.RestTemplate;
 import com.unistore.domain.PaginatedResult;
 import com.unistore.domain.ProductPriceDetails;
 import com.unistore.entity.PriceEntity;
@@ -18,6 +14,8 @@ import com.unistore.entity.ProductEntity;
 import com.unistore.exception.UnistoreErrorCode;
 import com.unistore.exception.UnistoreException;
 import com.unistore.service.ProductPriceAgrregatorService;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 import lombok.extern.slf4j.Slf4j;
 
 @SuppressWarnings("deprecation")
@@ -25,8 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProductPriceAggregatorServiceImpl implements ProductPriceAgrregatorService {
 
-  @Autowired
-  private AsyncRestTemplate asyncRestTemplate;
+  // @Autowired
+  // private AsyncRestTemplate asyncRestTemplate;
 
   @Value("${url.product}")
   private String productURL;
@@ -35,43 +33,61 @@ public class ProductPriceAggregatorServiceImpl implements ProductPriceAgrregator
   private String priceURL;
 
 
+  @Autowired
+  private RestTemplate restTemplate;
 
+
+  // @SuppressWarnings("unchecked")
   @Override
-  public List<ProductPriceDetails> getDetails(Long productId) throws UnistoreException {
-
-    List<ProductPriceDetails> productPriceDetails;
+  public Observable<ProductPriceDetails> getProductPriceDetails(Long productId)
+      throws UnistoreException {
+    LOGGER.debug("Retrieving the product price Details.");
     try {
-      productPriceDetails = Collections.singletonList(callEndpoints(productId));
+      return (Observable<ProductPriceDetails>) Observable.zip(
+          getProductDetails(productId).subscribeOn(Schedulers.io()),
+          getPriceInformation(productId).subscribeOn(Schedulers.io()),
+          (productResult, priceResult) -> transformToPrdouctPrice(productResult, priceResult));
+      // .observeOn(Schedulers.newThread())
+      // .subscribe(result -> System.out.println("product price aggregaation is :" + result));
+
     } catch (Exception e) {
-      LOGGER.error("error while getting async call", e);
+      LOGGER.error("Exception while fetching product price details :", e);
       throw new UnistoreException(HttpStatus.INTERNAL_SERVER_ERROR, UnistoreErrorCode.SC500,
-          "error while getting async call", e);
+          "Exception while fetching product price details :" + e.getMessage(), e);
     }
-    return productPriceDetails;
   }
 
 
 
-  public ProductPriceDetails callEndpoints(Long productId) throws Exception {
-    long start = System.currentTimeMillis();
+  private ProductPriceDetails transformToPrdouctPrice(ProductEntity productResult,
+      PriceEntity priceResult) {
 
-    Future<ResponseEntity<ProductEntity>> future1 =
-        asyncRestTemplate.exchange(productURL + productId, HttpMethod.GET, null,
-            new ParameterizedTypeReference<ProductEntity>() {});
-    Future<ResponseEntity<PaginatedResult<PriceEntity>>> future2 =
-        asyncRestTemplate.exchange(priceURL + productId, HttpMethod.GET, null,
-            new ParameterizedTypeReference<PaginatedResult<PriceEntity>>() {});
+    return ProductPriceDetails.builder().productDetails(productResult).priceDetails(priceResult)
+        .build();
+  }
 
-    while (!(future1.isDone() && future2.isDone())) {
-      Thread.sleep(10);
-    }
 
-    LOGGER.info("Elapsed time: " + (System.currentTimeMillis() - start));
-    System.out.println("future 1 : " + future1.get());
-    System.out.println("future 2 : " + future2.get());
 
-    return ProductPriceDetails.builder().productDetails(future1.get().getBody())
-        .priceDetails(future2.get().getBody().getResult().get(0)).build();
+  private Observable<ProductEntity> getProductDetails(Long productId) {
+    return Observable.<ProductEntity>create(sub -> {
+      ProductEntity productEntity =
+          restTemplate.getForEntity(productURL + productId, ProductEntity.class).getBody();
+      sub.onNext(productEntity);
+      sub.onComplete();
+    }).doOnNext(p -> LOGGER.info("Product details were received successfully."))
+        .doOnError(e -> LOGGER.error("An ERROR occurred while fetching the Product details.", e));
+  }
+
+  private Observable<PriceEntity> getPriceInformation(Long productId) {
+    return Observable.<PriceEntity>create(sub -> {
+      PriceEntity priceEntity = restTemplate
+          .exchange(priceURL + productId, HttpMethod.GET, null,
+              new ParameterizedTypeReference<PaginatedResult<PriceEntity>>() {})
+          .getBody().getResult().stream().findFirst().orElse(PriceEntity.builder().build());
+      sub.onNext(priceEntity);
+      sub.onComplete();
+    }).doOnNext(s -> LOGGER.info("Price information was received successfully."))
+        .doOnError(e -> LOGGER.error("An ERROR occurred while fetching Price Information", e));
   }
 
 

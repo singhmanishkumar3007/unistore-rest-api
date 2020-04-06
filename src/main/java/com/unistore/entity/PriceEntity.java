@@ -31,7 +31,7 @@ public class PriceEntity {
 
   @Id
   @Column(name = "price_id")
-  @GeneratedValue(strategy = GenerationType.SEQUENCE)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long priceId;
 
   @Column(name = "product_id")

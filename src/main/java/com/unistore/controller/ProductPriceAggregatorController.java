@@ -1,6 +1,5 @@
 package com.unistore.controller;
 
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,11 +34,13 @@ public class ProductPriceAggregatorController {
       @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorDetails.class)})
 
   @GetMapping(value = "/product/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public List<ProductPriceDetails> getProductPriceById(@PathVariable("id") Long productId)
+  public ProductPriceDetails getProductPriceById(@PathVariable("id") Long productId)
       throws Exception {
 
     LOGGER.info("In getProductPriceById for productId {}", productId);
-    return productPriceAgrregatorService.getDetails(productId);
+    ProductPriceDetails prdPrice =
+        productPriceAgrregatorService.getProductPriceDetails(productId).blockingFirst();
+    return prdPrice;
   }
 
 

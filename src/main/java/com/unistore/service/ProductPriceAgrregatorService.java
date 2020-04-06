@@ -1,11 +1,12 @@
 package com.unistore.service;
 
-import java.util.List;
 import com.unistore.domain.ProductPriceDetails;
 import com.unistore.exception.UnistoreException;
+import io.reactivex.Observable;
 
 public interface ProductPriceAgrregatorService {
 
-  List<ProductPriceDetails> getDetails(Long productId) throws UnistoreException;
+
+  Observable<ProductPriceDetails> getProductPriceDetails(Long productId) throws UnistoreException;
 
 }
