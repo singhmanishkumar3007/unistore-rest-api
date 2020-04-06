@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class UnistoreResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UnistoreException.class)
-    public final ResponseEntity<ErrorDetails> handleUserNotFoundException(UnistoreException ex, WebRequest request) {
+    public final ResponseEntity<ErrorDetails> handleUnistoreException(UnistoreException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(new Date(),  ex.getStandardErrorCode(),
                 request.getDescription(false));
         return new ResponseEntity<>(errorDetails,
